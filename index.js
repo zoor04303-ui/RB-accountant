@@ -1,92 +1,45 @@
-import express from "express";
-import bodyParser from "body-parser";
-import { createClient } from "@supabase/supabase-js";
+const express = require("express");
+const bodyParser = require("body-parser");
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 app.use(bodyParser.json());
 
-// ======================
-// Supabase Config
-// ======================
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// ==========================
+// Supabase
+// ==========================
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// ======================
-// Health Check
-// ======================
-app.get("/", (req, res) => {
-  res.send("🚀 RB Accountant AI is running!");
-});
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ======================
-// Webhook from Salla
-// ======================
+// ==========================
+// Webhook
+// ==========================
 app.post("/webhook", async (req, res) => {
+  console.log("📩 Webhook received:", req.body);
+
   try {
-    const event = req.body;
-    console.log("📩 Salla Event Received:", event);
+    // مثال تسجيل في Supabase
+    const { data, error } = await supabase
+      .from("webhooks_logs")
+      .insert([{ payload: req.body }]);
 
-    // مثال: طلب جديد
-    if (event.event === "order.created") {
-      const order = event.data;
-
-      const orderData = {
-        order_id: order.id,
-        total: order.total.amount,
-        currency: order.total.currency,
-        status: order.status,
-        customer_name: order.customer?.name || null,
-        created_at: order.created_at
-      };
-
-      // حفظ في Supabase
-      const { error } = await supabase
-        .from("orders")
-        .insert([orderData]);
-
-      if (error) {
-        console.error("❌ Supabase Insert Error:", error);
-      } else {
-        console.log("✅ Order saved to Supabase:", order.id);
-      }
+    if (error) {
+      console.error("❌ Supabase error:", error);
     }
 
-    res.sendStatus(200);
+    res.status(200).send("OK");
   } catch (err) {
-    console.error("🔥 Webhook Error:", err);
-    res.sendStatus(500);
+    console.error("❌ Server error:", err);
+    res.status(500).send("ERROR");
   }
 });
 
-// ======================
-// Simple Analytics Endpoint
-// ======================
-app.get("/analytics/summary", async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("total");
-
-    if (error) throw error;
-
-    const totalSales = data.reduce((sum, o) => sum + Number(o.total), 0);
-
-    res.json({
-      total_orders: data.length,
-      total_sales: totalSales
-    });
-  } catch (err) {
-    console.error("Analytics Error:", err);
-    res.status(500).json({ error: "Failed to load analytics" });
-  }
-});
-
-// ======================
-// Server
-// ======================
+// ==========================
+// Start Server
+// ==========================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ RB Accountant AI running on port ${PORT}`);
-});process.env.PORT
+  console.log(`🚀 RB Accountant AI running on port ${PORT}`);
+});
