@@ -89,4 +89,4 @@ app.get("/analytics/summary", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ RB Accountant AI running on port ${PORT}`);
-});
+});process.env.PORT
