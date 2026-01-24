@@ -13,12 +13,16 @@ app.post("/webhook", async (req, res) => {
 
     if (error) {
       console.error("Supabase Error:", error);
-      return res.status(500).json({ error: "DB insert failed" });
+      return res.status(500).json({ error: "DB insert failed", details: error });
     }
 
-    res.status(200).json({ success: true });
+    return res.status(200).json({
+      success: true,
+      inserted: data
+    });
+
   } catch (err) {
     console.error("Server Error:", err);
-    res.status(500).json({ error: "Server crashed" });
+    return res.status(500).json({ error: "Server crashed", details: err });
   }
 });
