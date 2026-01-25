@@ -6,58 +6,47 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ==========================
 // Supabase Config
-// ==========================
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ==========================
 // Health Check
-// ==========================
 app.get("/", (req, res) => {
   res.send("🚀 RB Accountant AI is running");
 });
 
-// ==========================
 // Webhook Endpoint
-// ==========================
 app.post("/webhook", async (req, res) => {
   try {
-    const userMessage = req.body.message || "no message";
+    console.log("Webhook received:", req.body);
 
-    const { data, error } = await supabase
+    const payload = JSON.stringify(req.body);
+
+    const { error } = await supabase
       .from("rb_accountant")
       .insert([
         {
-          message: userMessage,
+          message: payload,
           created_at: new Date()
         }
       ]);
 
     if (error) {
       console.error("Supabase Error:", error);
-      return res.status(500).json({ error: "DB insert failed", details: error });
+      return res.status(500).send("DB Error");
     }
 
-    return res.status(200).json({
-      success: true,
-      inserted: data
-    });
+    res.status(200).send("OK");
 
   } catch (err) {
-    console.error("Server Error:", err);
-    return res.status(500).json({ error: "Server crashed", details: err });
+    console.error("Webhook Crash:", err);
+    res.status(500).send("Server Error");
   }
 });
 
-// ==========================
-// Start Server
-// ==========================
+// 🔥 THIS IS REQUIRED FOR RENDER
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log(`🚀 RB Accountant AI running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
