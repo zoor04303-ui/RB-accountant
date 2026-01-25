@@ -3,6 +3,8 @@ import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 
 const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
@@ -16,8 +18,11 @@ app.get("/", (req, res) => {
   res.send("🚀 RB Accountant AI is running");
 });
 
-// Webhook Endpoint
+// Webhook Endpoint (FIXED)
 app.post("/webhook", async (req, res) => {
+  // ✅ رد فوري لسلة
+  res.status(200).send("OK");
+
   try {
     console.log("Webhook received:", req.body);
 
@@ -34,19 +39,15 @@ app.post("/webhook", async (req, res) => {
 
     if (error) {
       console.error("Supabase Error:", error);
-      return res.status(500).send("DB Error");
     }
 
-    res.status(200).send("OK");
-
   } catch (err) {
-    console.error("Webhook Crash:", err);
-    res.status(500).send("Server Error");
+    console.error("Webhook Processing Error:", err);
   }
 });
 
-// 🔥 THIS IS REQUIRED FOR RENDER
-const PORT = process.env.PORT || 3000;
+// Start Server
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
