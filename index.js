@@ -1,20 +1,29 @@
 import express from "express";
+import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 
-// ===== Middleware =====
+// Middlewares
+app.use(cors());
 app.use(express.json());
 
-// ===== Supabase Setup =====
+// Supabase Config
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error("❌ Supabase env variables missing");
-}
+// Health Check
+app.get("/", (req, res) => {
+  res.send("🚀 RB Accountant AI is running");
+});
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Webhook TEST (GET)
+app.get("/webhook", (req, res) => {
+  res.send("Webhook endpoint is alive ✅");
+});
 
-// ===== Health Check =====
-app.get("/", (req, res) =>
+// Webhook REAL (POST)
+app.post("/webhook", async (req, res) => {
+  console.log("Webhook received:", req.body);
+  res.status(200
