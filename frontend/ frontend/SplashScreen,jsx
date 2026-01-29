@@ -1,35 +1,41 @@
 import React, { useEffect } from "react";
 
-export default function SplashScreen() {
+export default function SplashScreen({ onFinish }) {
   useEffect(() => {
-    console.log("RB Accountant Splash Loaded");
+    const timer = setTimeout(() => {
+      if (onFinish) onFinish();
+    }, 2500); // 2.5 ثانية
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.logo}>RB</h1>
-      <p style={styles.text}>المحاسب المالي الذكي</p>
+      <div style={styles.logo}>RB</div>
+      <p style={styles.text}>محاسبك الذكي يبدأ الآن 🚀</p>
     </div>
   );
 }
 
 const styles = {
   container: {
-    backgroundColor: "#000",
     height: "100vh",
+    backgroundColor: "#0B1C2D",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    color: "#fff",
   },
   logo: {
-    color: "#00aaff",
-    fontSize: "80px",
+    fontSize: "64px",
     fontWeight: "bold",
+    marginBottom: "20px",
+    color: "#4FC3F7",
+    letterSpacing: "4px",
   },
   text: {
-    color: "#fff",
-    fontSize: "20px",
-    marginTop: "10px",
+    fontSize: "18px",
+    opacity: 0.85,
   },
 };
