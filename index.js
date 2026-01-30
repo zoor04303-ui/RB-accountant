@@ -30,8 +30,8 @@ app.post("/webhook", async (req, res) => {
     console.log("📦 Order received from Salla:", req.body);
 
     // 🔗 Send to Make
-    await fetch("https://hook.make.com/XXXXXXXXXXXX", {
-      method: "POST",
+    await fetch("", {
+      method: "POST",cybfhc8r2l84ayp8dnc59qx2c0u4udpl@hook.us2.make.com
       headers: {
         "Content-Type": "application/json",
       },
