@@ -1,29 +1,52 @@
 import express from "express";
 import cors from "cors";
+import fetch from "node-fetch";
 import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 
-// Middlewares
+// ===== Middlewares =====
 app.use(cors());
 app.use(express.json());
 
-// Supabase Config
+// ===== Supabase =====
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Health Check
+// ===== Health Check =====
 app.get("/", (req, res) => {
   res.send("🚀 RB Accountant AI is running");
 });
 
-// Webhook TEST (GET)
+// ===== Webhook TEST =====
 app.get("/webhook", (req, res) => {
-  res.send("Webhook endpoint is alive ✅");
+  res.send("✅ Webhook endpoint is alive");
 });
 
-// Webhook REAL (POST)
+// ===== Webhook REAL (Salla → Render → Make) =====
 app.post("/webhook", async (req, res) => {
-  console.log("Webhook received:", req.body);
-  res.status(200
+  try {
+    console.log("📦 Order received from Salla:", req.body);
+
+    // 🔗 Send to Make
+    await fetch("https://hook.make.com/XXXXXXXXXXXX", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(req.body),
+    });
+
+    res.status(200).send("ok");
+  } catch (error) {
+    console.error("❌ Webhook error:", error);
+    res.status(500).send("error");
+  }
+});
+
+// ===== Start Server =====
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`🔥 Server running on port ${PORT}`);
+});
